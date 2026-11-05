@@ -56,7 +56,9 @@ Orange, grey, and custom colors require a terminal with true-color support.
 
 ### Prebuilt binary · Linux
 
-Download `tclock-linux-x86_64` from [Releases](https://github.com/GabrielePintus/tclock/releases).
+Download [x86_64](https://github.com/GabrielePintus/tclock/releases/latest/download/tclock-linux-x86_64)
+or [ARM64](https://github.com/GabrielePintus/tclock/releases/latest/download/tclock-linux-arm64)
+from [Releases](https://github.com/GabrielePintus/tclock/releases).
 Then, **from the download directory**, run:
 
 ```sh
@@ -64,9 +66,8 @@ mkdir -p "$HOME/.local/bin"
 install -m 755 tclock-linux-x86_64 "$HOME/.local/bin/tclock"
 ```
 
-The published v0.1.0 binary requires glibc 2.35 or newer. The upcoming v0.1.1
-adds static musl binaries for x86_64 and ARM64, including Alpine support;
-for ARM64, use `tclock-linux-arm64` in the command above.
+Both binaries are statically linked with musl, with no glibc dependency,
+and support Alpine Linux. For ARM64, use `tclock-linux-arm64` in the command above.
 
 Archives include the same binary as `tclock`, plus documentation and a license.
 Checksums are provided in `SHA256SUMS`.
