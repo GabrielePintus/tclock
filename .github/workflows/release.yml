@@ -4,6 +4,13 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build and publish
+        required: true
+        default: v0.1.1
+        type: string
 
 permissions:
   contents: write
@@ -12,10 +19,14 @@ jobs:
   linux:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_TAG }}
       - name: Check release version
-        run: test "$GITHUB_REF_NAME" = "v$(sed -n 's/^VERSION = //p' Makefile)"
+        run: test "$RELEASE_TAG" = "v$(sed -n 's/^VERSION = //p' Makefile)"
       - name: Install Zig 0.17.1
         run: |
           curl --fail --location --retry 3 \
@@ -47,13 +58,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          version=${GITHUB_REF_NAME#v}
-          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+          version=${RELEASE_TAG#v}
+          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
               --verify-tag --title "tclock $version" \
               --notes 'Static Linux binaries for x86_64 and ARM64, built with musl. No glibc dependency; also suitable for Alpine Linux. Download the binary matching your CPU, or an archive with documentation. SHA256SUMS contains checksums for all four downloads. ARM64 smoke-tested with QEMU.'
           fi
-          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
+          gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
             dist/tclock-linux-x86_64 dist/tclock-linux-arm64 \
             "dist/tclock-$version-linux-x86_64.tar.gz" \
             "dist/tclock-$version-linux-arm64.tar.gz" dist/SHA256SUMS

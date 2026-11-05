@@ -144,6 +144,9 @@ Push the matching tag (for example, `git tag v0.1.1` followed by
 `git push origin v0.1.1`). The Linux release workflow builds both architectures,
 checks them (ARM64 through QEMU), and publishes the four assets and `SHA256SUMS`
 to a GitHub release automatically.
+You can also run **Linux release → Run workflow** from the repository's
+**Actions** tab and enter an existing tag. GitHub Actions must be enabled for
+the repository.
 
 </details>
 
