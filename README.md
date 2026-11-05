@@ -52,101 +52,53 @@ tclock --color 89B4FA
 Quote values starting with `#` so your shell does not treat them as comments.
 Orange, grey, and custom colors require a terminal with true-color support.
 
-## Install a prebuilt release
+## Installation
 
-The [latest release](https://github.com/GabrielePintus/tclock/releases/latest)
-provides two ready-to-run Linux binaries. No compiler is needed.
+### Prebuilt binary · Linux
 
-| Architecture (`uname -m`) | Download |
-| --- | --- |
-| `x86_64` — Intel/AMD 64-bit PCs | [tclock-linux-x86_64](https://github.com/GabrielePintus/tclock/releases/latest/download/tclock-linux-x86_64) |
-| `aarch64` / `arm64` — ARM64, including Raspberry Pi with a 64-bit OS | [tclock-linux-arm64](https://github.com/GabrielePintus/tclock/releases/latest/download/tclock-linux-arm64) |
-
-Starting with v0.1.1, both binaries are statically linked with musl: they have
-no glibc dependency and can also run on Alpine Linux. Version 0.1.0's x86_64
-binary requires glibc 2.35 or newer. For macOS or 32-bit Linux, build from source.
-
-Download [tclock-linux-x86_64](https://github.com/GabrielePintus/tclock/releases/latest/download/tclock-linux-x86_64),
-then install it:
+Download `tclock-linux-x86_64` from [Releases](https://github.com/GabrielePintus/tclock/releases).
+Then, **from the download directory**, run:
 
 ```sh
 mkdir -p "$HOME/.local/bin"
 install -m 755 tclock-linux-x86_64 "$HOME/.local/bin/tclock"
-tclock --color orange --no-date --no-hint
 ```
 
-For ARM64, replace `tclock-linux-x86_64` with `tclock-linux-arm64` in the commands.
-Run these commands in the directory containing the downloaded file. Ensure
-`~/.local/bin` is in your `PATH`; otherwise run `~/.local/bin/tclock` directly.
-You can also try the downloaded file without installing it:
+The published v0.1.0 binary requires glibc 2.35 or newer. The upcoming v0.1.1
+adds static musl binaries for x86_64 and ARM64, including Alpine support;
+for ARM64, use `tclock-linux-arm64` in the command above.
 
-```sh
-chmod +x tclock-linux-x86_64
-./tclock-linux-x86_64
-```
+Archives include the same binary as `tclock`, plus documentation and a license.
+Checksums are provided in `SHA256SUMS`.
 
-The release also includes a `.tar.gz` archive with the same executable,
-documentation, and license. Extract it, enter the extracted directory, and run
-`./tclock` or install it with `install -m 755 tclock "$HOME/.local/bin/tclock"`.
-`SHA256SUMS` lists checksums for both downloads. To check downloaded assets on Linux,
-place that file beside them and run `sha256sum --check --ignore-missing SHA256SUMS`.
+### From source · Linux / macOS
 
-## Build and install from source
-
-Requires a C compiler and Make on Linux or macOS. No additional libraries are
-needed.
+Requires a C compiler and Make; no additional libraries.
 
 ```sh
 git clone https://github.com/GabrielePintus/tclock.git
 cd tclock
-make
-./tclock --color orange --no-date --no-hint
-```
-
-Install to `~/.local/bin` so you can use `tclock` from any directory:
-
-```sh
 make install
-tclock --help
 ```
 
-Ensure `~/.local/bin` is in your `PATH`. To select another installation prefix,
-use `make install PREFIX=/your/prefix`. To remove a source installation, run
-`make uninstall` with the same prefix. For a manually installed release binary,
-remove `~/.local/bin/tclock`.
+Already in the project directory? Just run `make install`. To build and try it
+without installing, use `make && ./tclock`.
 
-Without Make, compile directly:
-
-```sh
-cc -std=c11 -O2 -Wall -Wextra -Wpedantic tclock.c -o tclock
-```
+Both methods install to `~/.local/bin`. Ensure it is in your `PATH`, or run
+`~/.local/bin/tclock` directly. Remove the installed binary to uninstall;
+source builds also provide `make uninstall` and a custom `PREFIX=/your/prefix`.
 
 <details>
-<summary>Creating a release</summary>
+<summary>Cross-compilation and releases</summary>
 
-Install [Zig](https://ziglang.org/download/) (tested with 0.17.1) to build release
-binaries. Zig is only needed for cross-compilation; normal `make` and
-`make install` still use your system C compiler.
+With [Zig](https://ziglang.org/download/) installed (tested with 0.17.1),
+`make dist` builds static Linux x86_64 and ARM64 binaries, archives, and
+`SHA256SUMS` in `dist/`. Use `ZIG=/path/to/zig` to select the compiler.
+Normal builds use the system C compiler and do not require Zig.
 
-```sh
-make dist
-# Or specify the path to Zig:
-make dist ZIG=/path/to/zig
-```
-
-This cross-compiles static musl binaries for Linux x86_64 and ARM64 from the
-same source. It leaves the local `./tclock` executable unchanged. The `dist/`
-directory contains both binaries, an archive per architecture, and `SHA256SUMS`.
-The ARM64 executable requires an ARM64 machine or emulator to run.
-
-To publish a new version, update `VERSION` in the Makefile and commit it.
-Push the matching tag (for example, `git tag v0.1.1` followed by
-`git push origin v0.1.1`). The Linux release workflow builds both architectures,
-checks them (ARM64 through QEMU), and publishes the four assets and `SHA256SUMS`
-to a GitHub release automatically.
-You can also run **Linux release → Run workflow** from the repository's
-**Actions** tab and enter an existing tag. GitHub Actions must be enabled for
-the repository.
+To publish, update `VERSION`, commit, and push the matching `vX.Y.Z` tag.
+GitHub Actions builds, checks, and publishes the assets. You can also select
+**Actions → Linux release → Run workflow** with an existing tag.
 
 </details>
 
