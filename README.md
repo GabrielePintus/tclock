@@ -77,17 +77,8 @@ in the Makefile. Build on Linux x86_64 with glibc 2.35 or older to retain the
 documented compatibility baseline; building on newer systems can introduce newer
 glibc requirements. The initial binary was checked to require at most glibc 2.34.
 
-For the first publication from this folder, with Git and GitHub CLI installed:
-
-```sh
-gh auth login
-sh scripts/publish.sh
-```
-
-This creates a public `tclock` repository under the authenticated account,
-pushes the source, and publishes release `v0.1.0` with the downloadable binaries.
-The script stops if the repository already exists. For subsequent releases,
-update `VERSION`, commit the changes, run `make dist`, and publish the new tag
+For subsequent releases, update `VERSION`, commit the changes,
+run `make dist`, and publish the new tag
 and release assets using GitHub CLI or the GitHub web interface.
 
 Licensed under the MIT license; see [LICENSE](LICENSE).
