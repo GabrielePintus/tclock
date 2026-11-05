@@ -3,7 +3,9 @@
 A small, colorful terminal clock written in C. Large digits, adjustable size,
 custom colors, and a layout that stays centered as you resize your terminal.
 
-![tclock running in a terminal with orange digits](assets/tclock.gif)
+<p align="center">
+  <img src="assets/tclock.gif" alt="tclock running in a terminal with orange digits" width="720">
+</p>
 
 ## Usage
 
