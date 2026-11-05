@@ -1,0 +1,59 @@
+name: Linux release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check release version
+        run: test "$GITHUB_REF_NAME" = "v$(sed -n 's/^VERSION = //p' Makefile)"
+      - name: Install Zig 0.17.1
+        run: |
+          curl --fail --location --retry 3 \
+            https://ziglang.org/download/0.17.1/zig-x86_64-linux-0.17.1.tar.xz \
+            -o "$RUNNER_TEMP/zig.tar.xz"
+          echo "3581863e3cbcfd0fce0efc682ce7e9e93da96668a977791d356a26d2a7e9b17a  $RUNNER_TEMP/zig.tar.xz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/zig"
+          tar -xf "$RUNNER_TEMP/zig.tar.xz" -C "$RUNNER_TEMP/zig" --strip-components=1
+          echo "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: Build static Linux binaries
+        run: make dist
+      - name: Install ARM64 emulator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+      - name: Verify both architectures
+        run: |
+          file dist/tclock-linux-x86_64 dist/tclock-linux-arm64
+          for binary in dist/tclock-linux-x86_64 dist/tclock-linux-arm64; do
+            if readelf -l "$binary" | grep -q INTERP; then
+              echo "Unexpected dynamic interpreter in $binary" >&2
+              exit 1
+            fi
+          done
+          dist/tclock-linux-x86_64 --help
+          qemu-aarch64-static dist/tclock-linux-arm64 --help
+          cd dist && sha256sum --check SHA256SUMS
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag --title "tclock $version" \
+              --notes 'Static Linux binaries for x86_64 and ARM64, built with musl. No glibc dependency; also suitable for Alpine Linux. Download the binary matching your CPU, or an archive with documentation. SHA256SUMS contains checksums for all four downloads. ARM64 smoke-tested with QEMU.'
+          fi
+          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
+            dist/tclock-linux-x86_64 dist/tclock-linux-arm64 \
+            "dist/tclock-$version-linux-x86_64.tar.gz" \
+            "dist/tclock-$version-linux-arm64.tar.gz" dist/SHA256SUMS
