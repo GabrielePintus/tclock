@@ -20,6 +20,7 @@ dist: tclock
 	mkdir -p dist/tclock-$(VERSION)-linux-x86_64
 	cp tclock dist/tclock-linux-x86_64
 	cp tclock README.md LICENSE dist/tclock-$(VERSION)-linux-x86_64/
+	cp -R assets dist/tclock-$(VERSION)-linux-x86_64/
 	printf '%s\n' 'tclock $(VERSION) — Linux x86_64' \
 		'Requires glibc 2.35 or newer.' \
 		'Install: install -Dm755 tclock "$$HOME/.local/bin/tclock"' \

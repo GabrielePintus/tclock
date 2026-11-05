@@ -4,6 +4,10 @@ A small C clock for Linux and macOS terminals, with large cyan digits, local
 time, and a date. It fills the terminal, stays centered when resized, and uses a
 compact display in small windows. No external libraries required.
 
+![tclock running in a terminal with orange digits](assets/tclock.gif)
+
+Preview: `tclock --color orange --no-date --no-hint`.
+
 Build and install in your personal executable directory:
 
 ```sh
